@@ -68,19 +68,24 @@ public class OrchrestateComparison {
 		final String separator = "_#_";
 		String line	= "datetime "
 					+ separator
-					+ "source file path "
+					+ "compare entry counter"
+					+ separator
+					+ "source file output path "
 					+ separator
 					+ "source file name "
 					+ separator
-					+ " source inject id "
+					+ "source inject id "
 					+ separator
-					+ "target file path "
+					+ "soruce ICO name"
 					+ separator
-					+ "Target file path "
+					+ "target file output path "
 					+ separator
-					+ "Target file name "
+					+ "target file name "
 					+ separator
-					+ "target inject id";
+					+ "target inject id"
+					+ separator
+					+ "target ICO";
+
 	}
 	
 	
