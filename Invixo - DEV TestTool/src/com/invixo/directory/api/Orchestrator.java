@@ -32,7 +32,7 @@ public class Orchestrator {
 	private static final String LOCATION = Orchestrator.class.getName();	
 	private static final String XML_PREFIX 	= "inv";
 	private static final String XML_NS 		= "urn:invixo.com.directory.api";
-	private static final String ICO_OVERVIEW_FILE = FileStructure.ICO_OVERVIEW_FILE;
+	private static final String ICO_OVERVIEW_FILE = FileStructure.FILE_ICO_OVERVIEW;
 	private static final String ENDPOINT = GlobalParameters.SAP_PO_HTTP_HOST_AND_PORT + PropertyAccessor.getProperty("SERVICE_PATH_DIR_API");
 	
 	private static String repositorySimpleQueryTemplate = "rep/read/ext?method=PLAIN&TYPE=MAPPING&KEY=###MAPPING_NAME####%7C###MAPPING_NAMESPACE###&VC=SWC&SWCGUID=###MAPPING_SWCGUID###&SP=-1&UC=false&release=7.0";

@@ -37,7 +37,6 @@ public class IcoOverviewDeserializer {
 			// Parse XML file and extract data
 			boolean fetchSenderData = false;
 			boolean fetchReceiverData = false;
-			boolean isActive = false;
 			ArrayList<IcoOverviewInstance> icoExtracts = new ArrayList<IcoOverviewInstance>();
 		    IcoOverviewInstance currentExtract = null;;
 		    
@@ -56,11 +55,6 @@ public class IcoOverviewDeserializer {
 			    	} else if ("Name".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
 						currentExtract.setName(eventReader.peek().asCharacters().getData());	
 						
-					// Active
-			    	} else if ("Active".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
-			    		isActive = Boolean.parseBoolean(eventReader.peek().asCharacters().getData());
-						currentExtract.setActive(isActive);	
-
 					// Quality of Service
 					} else if ("QualityOfService".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
 						currentExtract.setQualityOfService(eventReader.peek().asCharacters().getData());	
@@ -140,10 +134,9 @@ public class IcoOverviewDeserializer {
 			    	} else if ("Receiver".equals(currentEndElementName)) {
 			    		fetchReceiverData = false;
 			    	
-			    	} else if (isActive && "IntegratedConfiguration".equals(currentEndElementName)) {
+			    	} else if ("IntegratedConfiguration".equals(currentEndElementName)) {
 		    			// ICO is active/enabled for processing, so add it
 			    		icoExtracts.add(currentExtract);
-			    		isActive = false;
 			    	}
 			    	break;
 			    }

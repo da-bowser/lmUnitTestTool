@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import com.invixo.common.IcoOverviewDeserializer;
 import com.invixo.common.IcoOverviewInstance;
 import com.invixo.common.util.Logger;
+import com.invixo.consistency.FileStructure;
 
 public class OrchrestateComparison {
 
 	private static Logger logger = Logger.getInstance();
 	private static final String LOCATION = OrchrestateComparison.class.getName();
 	
-	private static final String icoOverviewXmlFileName = "";
-	private static final String comparisonXmlFileName = "";
+
 	
 	
 	public static void start() {
@@ -23,10 +23,10 @@ public class OrchrestateComparison {
 		logger.writeDebug(LOCATION, SIGNATURE, "Start comparison orchestration...");
 
 		// Get ICO Overview list
-		ArrayList<IcoOverviewInstance> icoInstancesList = loadIcoOverview(GlobalParameters.PARAM_VAL_BASE_DIR, icoOverviewXmlFileName);
+		ArrayList<IcoOverviewInstance> icoInstancesList = loadIcoOverview(FileStructure.DIR_CONFIG, FileStructure.FILE_ICO_OVERVIEW);
 		
 		// Get Comparison Cases
-		ArrayList<ComparisonCase> comparisonList = loadComparisonCases(GlobalParameters.PARAM_VAL_BASE_DIR, comparisonXmlFileName);
+		ArrayList<ComparisonCase> comparisonList = loadComparisonCases(FileStructure.DIR_CONFIG, FileStructure.FILE_COMPARISON_OVERVIEW);
 		
 		// Process each comparison case
 		for (ComparisonCase currentEntry : comparisonList) {
@@ -35,6 +35,7 @@ public class OrchrestateComparison {
 			
 			// Get matching ICO instance
 			IcoOverviewInstance icoInstance = getIcoFromOverview(icoInstancesList, currentIcoNameRef);
+			System.out.println("hej");
 			
 			// Get list of source files to be injected
 			

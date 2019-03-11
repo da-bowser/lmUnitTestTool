@@ -3,7 +3,7 @@ package com.invixo.common.util;
 import java.io.FileWriter;
 import java.io.StringWriter;
 
-import com.invixo.main.GlobalParameters;
+import com.invixo.main.special.GlobalParameters;
 
 public class Logger {
 	// Variables
@@ -15,7 +15,7 @@ public class Logger {
     private static final String LOG_TYPE_DEBUG_TXT = "[DEBUG]";
     private static final String LOG_TYPE_ERROR_TXT = "[ERROR]";
 	
-	private final String logFileName = "RunLog_" + System.currentTimeMillis() + "_" + GlobalParameters.PARAM_VAL_OPERATION + ".txt";
+	private final String logFileName = "RunLog_" + System.currentTimeMillis() + ".txt";
 	private FileWriter fileWriter = null;
     private static Logger instance;
     

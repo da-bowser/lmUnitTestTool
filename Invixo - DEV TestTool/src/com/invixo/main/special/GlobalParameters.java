@@ -11,23 +11,9 @@ public class GlobalParameters {
 	public static final ContentType CONTENT_TYPE_TEXT_XML 	= ContentType.TEXT_XML.withCharset(ENCODING);
 	public static final ContentType CONTENT_TYPE_APP_XML 	= ContentType.APPLICATION_XML.withCharset(ENCODING);
 	
-	public enum Environment { DEV, TST, PRD };
-	public enum Operation { compare , createIcoOverview};
 	
-
 	// Parameter: base directory for all reading and writing to/from file system
 	public static String PARAM_VAL_BASE_DIR 				= null;
-	
-	// Parameter: dictates which environment ICO Overview file is based on. (used for translation/mapping of sender/receiver systems)
-	public static String PARAM_VAL_ICO_REQUEST_FILES_ENV 	= null;
-		
-	// Parameter: target environment to inject to
-	public static String PARAM_VAL_TARGET_ENV 				= null;
-	
-	// Parameter: operation for program to perform (generateIco, compare)
-	public static String PARAM_VAL_OPERATION 				= null;
-		
-	
 	
 	// SAP PO user/password
 	public static String CREDENTIAL_USER					= null;

@@ -40,6 +40,7 @@ public class ComparisonXmlDeserializer {
 		    boolean isActive = false;
 			ArrayList<ComparisonCase> comparisonList = new ArrayList<ComparisonCase>();
 			ComparisonCase currentExtract = null;
+			int maxComparisons = 0;
 		    
 			while (eventReader.hasNext()) {
 			    XMLEvent event = eventReader.nextEvent();
@@ -57,16 +58,15 @@ public class ComparisonXmlDeserializer {
 			            {
 			                Attribute attribute = iterator.next();
 			                String name = attribute.getName().toString();
-			                if ("BaseFilePath".equals(name)) {
-			                	currentExtract.setBaseFilePath(attribute.getValue());
-			                } else if ("MaxComparisons".equals(name)) {
-			                	currentExtract.setMaxComparisons(Integer.parseInt(attribute.getValue()))	;
+		                	if ("MaxComparisons".equals(name)) {
+		                		maxComparisons = Integer.parseInt(attribute.getValue());
 			                }
 			            }
 			            
 					// CompareEntry (single instance/entry root)			            
 			    	} else if ("CompareEntry".equals(currentStartElementName)) {
 						currentExtract = new ComparisonCase();
+						currentExtract.setMaxComparisons(maxComparisons);
 						isSourceFound = false;
 						isTargetFound = false;
 						isActive = false;
