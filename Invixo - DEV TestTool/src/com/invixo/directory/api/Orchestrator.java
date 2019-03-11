@@ -25,7 +25,7 @@ import com.invixo.common.util.PropertyAccessor;
 import com.invixo.common.util.Util;
 import com.invixo.common.util.XmlUtil;
 import com.invixo.consistency.FileStructure;
-import com.invixo.main.GlobalParameters;
+import com.invixo.main.special.GlobalParameters;
 
 public class Orchestrator {
 	private static Logger logger = Logger.getInstance();

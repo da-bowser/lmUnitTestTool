@@ -31,7 +31,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.invixo.common.util.Logger;
 import com.invixo.common.util.PropertyAccessor;
-import com.invixo.main.GlobalParameters;
+import com.invixo.main.special.GlobalParameters;
 
 
 public class HttpHandler {
