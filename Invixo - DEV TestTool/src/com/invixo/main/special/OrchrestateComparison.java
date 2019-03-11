@@ -52,6 +52,9 @@ public class OrchrestateComparison {
 		// Get ICO Overview list
 		ArrayList<IcoOverviewInstance> icoInstancesList = loadIcoOverview(FileStructure.DIR_CONFIG, FileStructure.FILE_ICO_OVERVIEW);
 		
+		// Check project folder setup
+		FileStructure.startCheck(icoInstancesList);
+		
 		// Get Comparison Cases
 		ArrayList<ComparisonCase> comparisonList = loadComparisonCases(FileStructure.DIR_CONFIG, FileStructure.FILE_COMPARISON_OVERVIEW);
 		
@@ -107,10 +110,14 @@ public class OrchrestateComparison {
 		}
 					
 		// Inject according to compare type
-		if (currentEntry.getCompareType().equals(ComparisonCase.TYPE.ICO_2_ICO)) {			
-			injectMap = handleC2CTypeInjection(icoInstance, sourceInjectPaths, targetInjectPaths, queueId);
+		boolean isIcoCompare = currentEntry.getCompareType().equals(ComparisonCase.TYPE.ICO_2_ICO);
+		if (isIcoCompare) {
+			injectMap = handleInject(isIcoCompare, icoInstance, sourceInjectPaths, targetInjectPaths, queueId);
 		} else {
-			injectMap = handleFileTypeInjection();
+			// Load target output files and correlate with source messageId for later compare
+			targetDir = FileStructure.DIR_TEST_CASES + currentEntry.getTargetPathOut();
+			targetInjectPaths = Util.generateListOfPaths(targetDir, "FILE");
+			injectMap = handleInject(isIcoCompare, icoInstance, sourceInjectPaths, targetInjectPaths, queueId);
 		}
 		
 		// Return map
@@ -126,7 +133,7 @@ public class OrchrestateComparison {
 	}
 
 
-	private static HashMap<String, String> handleC2CTypeInjection(IcoOverviewInstance icoInstance, List<Path> sourceInjectPaths, List<Path> targetInjectPaths, String queueId) throws GeneralException {
+	private static HashMap<String, String> handleInject(boolean isIcoCompare, IcoOverviewInstance icoInstance, List<Path> sourceInjectPaths, List<Path> targetInjectPaths, String queueId) throws GeneralException {
 		HashMap<String, String> injectMap = new HashMap<String, String>();
 		// Validate that source and target count matches
 		if (sourceInjectPaths.size() == targetInjectPaths.size()) {
@@ -137,10 +144,17 @@ public class OrchrestateComparison {
 				String sourceMessageId = UUID.randomUUID().toString();
 				injectPayload(icoInstance, queueId, sourceMessageId, sourceFile);
 				
-				// Inject target file
 				Path targetFile = targetInjectPaths.get(i);
 				String targetMessageId = UUID.randomUUID().toString();
-				injectPayload(icoInstance, queueId, targetMessageId, targetFile);
+				
+				// Check if we should inject target "input" files or load "output" files
+				if (isIcoCompare) {
+					// Inject target file
+					injectPayload(icoInstance, queueId, targetMessageId, targetFile);
+				} else {
+					// Correlate source inject id with target file name instead of messageId
+					targetMessageId = targetFile.getFileName().toString();
+				}
 				
 				// Add message id's to map for correlation
 				injectMap.put(sourceMessageId, targetMessageId);
