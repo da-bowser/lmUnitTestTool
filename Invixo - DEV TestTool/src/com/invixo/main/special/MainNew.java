@@ -15,7 +15,6 @@ import com.invixo.main.special.GlobalParameters;
 public class MainNew {
 	private static Logger logger = null;
 	private static final String LOCATION = MainNew.class.getName();
-	// Dummy change
 
 	// Parameter: dictates which environment ICO Overview XML is based on. (used for translation/mapping of sender/receiver systems)
 	private static final String PARAM_KEY_ICO_REQUEST_FILES_ENV = "icoRequestFilesEnv";
