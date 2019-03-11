@@ -68,10 +68,7 @@ public class OrchrestateComparison {
 			
 			HashMap<String, String> injectMap = processInjection(currentEntry, icoInstance);
 			
-			
-			// For each source file:	
-				// Inject file to SAP PO, EXTRACT ENTRY
-				// If comparisonType == FILE, THEN build STATE FILE, ELSE INJECT TARGET FILE
+			// Extract LAST messages based on inject map (only extract source LAST for ICO_2_FILE compare)
 			
 			
 		}
