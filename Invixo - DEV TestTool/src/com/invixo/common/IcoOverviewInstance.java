@@ -3,11 +3,7 @@ package com.invixo.common;
 
 public class IcoOverviewInstance {
 	private String name = null;
-	private boolean active = false;
 	private String qualityOfService = null;
-	private String fromTime = null;
-	private String toTime = null;
-	private int maxMessages = 0;
 
 	private boolean isUsingMultiMapping = false;
 	
@@ -28,35 +24,11 @@ public class IcoOverviewInstance {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public boolean isActive() {
-		return active;
-	}
-	public void setActive(boolean active) {
-		this.active = active;
-	}
 	public String getQualityOfService() {
 		return qualityOfService;
 	}
 	public void setQualityOfService(String qualityOfService) {
 		this.qualityOfService = qualityOfService;
-	}
-	public String getFromTime() {
-		return fromTime;
-	}
-	public void setFromTime(String fromTime) {
-		this.fromTime = fromTime;
-	}
-	public String getToTime() {
-		return toTime;
-	}
-	public void setToTime(String toTime) {
-		this.toTime = toTime;
-	}
-	public int getMaxMessages() {
-		return maxMessages;
-	}
-	public void setMaxMessages(int maxMessages) {
-		this.maxMessages = maxMessages;
 	}
 	public boolean isUsingMultiMapping() {
 		return isUsingMultiMapping;

@@ -35,7 +35,6 @@ public class OrchrestateComparison {
 			
 			// Get matching ICO instance
 			IcoOverviewInstance icoInstance = getIcoFromOverview(icoInstancesList, currentIcoNameRef);
-			System.out.println("hej");
 			
 			// Get list of source files to be injected
 			

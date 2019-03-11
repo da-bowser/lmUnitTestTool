@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.invixo.common.util.Logger;
+import com.invixo.common.util.PropertyAccessor;
 import com.invixo.common.util.Util;
 import com.invixo.main.special.GlobalParameters;
 
@@ -15,6 +16,7 @@ import com.invixo.main.special.GlobalParameters;
 public class MainNew {
 	private static Logger logger = null;
 	private static final String LOCATION = MainNew.class.getName();
+	private static final boolean SKIP_ICO_OVERVIEW_GENERATION = Boolean.parseBoolean(PropertyAccessor.getProperty("SKIP_ICO_OVERVIEW_GENERATION"));
 
 	// Parameter: base directory for all reading and writing to/from file system
 	private static final String PARAM_KEY_BASE_DIR 				= "baseDirectory";
@@ -55,14 +57,18 @@ public class MainNew {
 			logger = Logger.getInstance();
 			
 			// Post parameter handling: get user/pass from credential file
-				readAndSetCredentials(PARAM_VAL_CREDENTIALS_FILE);
+			readAndSetCredentials(PARAM_VAL_CREDENTIALS_FILE);
 				
 			// Post parameter handling: build complete PO host and port
-				GlobalParameters.SAP_PO_HTTP_HOST_AND_PORT = buildHttpHostPort();
+			GlobalParameters.SAP_PO_HTTP_HOST_AND_PORT = buildHttpHostPort();
 				
 			// Create ICO overview
-			createIcoOverview();
-				
+			if (SKIP_ICO_OVERVIEW_GENERATION) {
+				logger.writeDebug(LOCATION, SIGNATURE, "ICO Overview generation skipped");
+			} else {
+				createIcoOverview();				
+			}
+
 			// Start comparing (inject + extract + compare)
 			compare();
 		} catch (ValidationException e) {

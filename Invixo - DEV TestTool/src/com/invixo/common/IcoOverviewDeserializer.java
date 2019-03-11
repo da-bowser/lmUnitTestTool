@@ -58,21 +58,9 @@ public class IcoOverviewDeserializer {
 					// Quality of Service
 					} else if ("QualityOfService".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
 						currentExtract.setQualityOfService(eventReader.peek().asCharacters().getData());	
-						
-					// Max message count
-					} else if ("MaxMessages".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
-						currentExtract.setMaxMessages(Integer.parseInt(eventReader.peek().asCharacters().getData()));	
-			    	
-			    	// Time, From
-					} else if ("FromTime".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
-						currentExtract.setFromTime(eventReader.peek().asCharacters().getData());	
-			    		
-			    	// Time, To
-					} else if ("ToTime".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
-						currentExtract.setToTime(eventReader.peek().asCharacters().getData());	
-						
+
 				    // Container for Sender info
-				    } else if ("Sender".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
+				    } else if ("Sender".equals(currentStartElementName)) {
 				    	fetchSenderData = true;	
 
 				    // Sender Party
@@ -92,7 +80,7 @@ public class IcoOverviewDeserializer {
 			    		currentExtract.setSenderNamespace(eventReader.peek().asCharacters().getData());	
 			    	
 			    	// Container for Receiver info
-			    	} else if ("Receiver".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
+			    	} else if ("Receiver".equals(currentStartElementName)) {
 					    fetchReceiverData = true;
 
 					// Receiver Party
