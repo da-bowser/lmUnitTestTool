@@ -7,9 +7,12 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.invixo.common.GeneralException;
 import com.invixo.common.util.Logger;
 import com.invixo.common.util.PropertyAccessor;
 import com.invixo.common.util.Util;
+import com.invixo.injection.InjectionPayloadException;
+import com.invixo.injection.InjectionRequest;
 import com.invixo.main.special.GlobalParameters;
 
 
@@ -90,7 +93,12 @@ public class MainNew {
 
 
 	private static void compare() {
-		com.invixo.main.special.OrchrestateComparison.start();		
+		try {
+			com.invixo.main.special.OrchrestateComparison.start();	
+		} catch (GeneralException e) {
+			// TODO: Handle error
+		}
+			
 	}
 
 

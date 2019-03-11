@@ -97,7 +97,7 @@ public class ComparisonXmlDeserializer {
 						currentExtract.setSourceIco(eventReader.peek().asCharacters().getData());
 						
 					// CompareType
-					} else if (isSourceFound && "Ico".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
+					} else if (isSourceFound && "CompareType".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
 						currentExtract.setCompareType(ComparisonCase.TYPE.valueOf(eventReader.peek().asCharacters().getData()));
 			    	
 					// Target

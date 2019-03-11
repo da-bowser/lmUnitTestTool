@@ -13,6 +13,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 
+import com.invixo.common.IcoOverviewInstance;
 import com.invixo.common.util.Logger;
 import com.invixo.common.util.XmlUtil;
 
@@ -23,8 +24,8 @@ public class RequestGeneratorUtil {
 	private static final String TARGET_SAP_NS_PREFIX	= "sap";
 	
 	
-	public static String generateSoapXiHeaderPart(IntegratedConfiguration ico, String messageId) throws InjectionPayloadException {
-		final String SIGNATURE = "generateSoapXiHeaderPart(IntegratedConfiguration, InjectionRequest)";
+	public static String generateSoapXiHeaderPart(IcoOverviewInstance ico, String queueId, String messageId) throws InjectionPayloadException {
+		final String SIGNATURE = "generateSoapXiHeaderPart(IcoOverviewInstance, String, String)";
 		try {
 			StringWriter stringWriter = new StringWriter();
 			XMLOutputFactory xMLOutputFactory = XMLOutputFactory.newInstance();
@@ -151,7 +152,7 @@ public class RequestGeneratorUtil {
 	        if ("EOIO".equals(ico.getQualityOfService())) {
 				startElement = xmlEventFactory.createStartElement(TARGET_SAP_NS_PREFIX, TARGET_SAP_NS, "QueueId");
 				xmlEventWriter.add(startElement);
-				value = xmlEventFactory.createCharacters(ico.getQueueId());
+				value = xmlEventFactory.createCharacters(queueId);
 				xmlEventWriter.add(value);
 				xmlEventWriter.add(xmlEventFactory.createEndElement(TARGET_SAP_NS_PREFIX, TARGET_SAP_NS, "QueueId"));
 	        }

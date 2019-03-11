@@ -15,7 +15,7 @@ public class FileStructure {
 	
 	// Various
 	private static final String DIR_LOGS							= FILE_BASE_LOCATION + "\\Logs\\";		// Manually set in Logger also.
-	private static final String DIR_DEBUG							= FILE_BASE_LOCATION + "\\Debug\\";
+	public static final String DIR_DEBUG							= FILE_BASE_LOCATION + "\\Debug\\";
 	public static final String DIR_CONFIG							= FILE_BASE_LOCATION + "\\Config\\";
 	public static final String DIR_REPORTS							= FILE_BASE_LOCATION + "\\Reports\\";
 	public static final String DIR_STATE							= FILE_BASE_LOCATION + "\\State\\";
