@@ -1,0 +1,1 @@
+[INFO] | 1552226451581 | com.invixo.main.special.MainNew@main(String[]) | Program execution took (seconds): 0.055243600000000004
