@@ -24,7 +24,7 @@ import com.invixo.common.util.PropertyAccessor;
 import com.invixo.common.util.Util;
 import com.invixo.common.util.XmlUtil;
 import com.invixo.consistency.FileStructure;
-import com.invixo.main.GlobalParameters;
+import com.invixo.main.special.GlobalParameters;
 
 public class WebServiceUtil {
 	private static Logger logger = Logger.getInstance();
@@ -66,7 +66,7 @@ public class WebServiceUtil {
 	 * @throws HttpException
 	 * @throws ExtractorException
 	 */
-	static String lookupMessageKey(String messageId, String icoName) throws HttpException, ExtractorException {
+	public static String lookupMessageKey(String messageId, String icoName) throws HttpException, ExtractorException {
 		final String SIGNATURE = "lookupMessageKey(String, String)";
 		
 		// Create "GetMessagesByIDs" request

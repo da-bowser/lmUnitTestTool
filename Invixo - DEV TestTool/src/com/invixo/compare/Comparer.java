@@ -34,7 +34,7 @@ public class Comparer {
 	private ArrayList<String> icoXPathExceptions = new ArrayList<String>();
 	private CompareException ce;
 	
-	Comparer(Path sourceFile, Path compareFile, ArrayList<String> icoXPathExceptions) {
+	public Comparer(Path sourceFile, Path compareFile, ArrayList<String> icoXPathExceptions) {
 		this.sourceFile = sourceFile;
 		this.compareFile = compareFile;
 		this.icoXPathExceptions = icoXPathExceptions;
@@ -44,15 +44,14 @@ public class Comparer {
 	/**
 	 * Start Compare
 	 */
-	void start() {
+	public void start() {
 		final String SIGNATURE = "start()";
-		try {
 			// Set file sizes for later reporting purposes
 			setFileSizes(this.sourceFile, this.compareFile);
 			
 			// Prepare files for compare
-			String sourceFileString = extractPayloadStringFromMultipartFile(this.sourceFile.toString());
-			String compareFileString = extractPayloadStringFromMultipartFile(this.compareFile.toString());
+			String sourceFileString = new String(Util.readFile(this.sourceFile.toString()));
+			String compareFileString = new String(Util.readFile(this.compareFile.toString()));
 
 			// Do compare
 			Diff diff = compare(sourceFileString, compareFileString);
@@ -65,14 +64,6 @@ public class Comparer {
 			// Increment compare success for reporting purposes
 			this.compareSuccessCount++;
 			
-		} catch (IOException | MessagingException e) {
-			// Increment compare skipped for reporting purposes
-			this.compareSkippedCount++;
-			String msg = "Problem during compare\n" + e.getMessage();
-
-			logger.writeError(LOCATION, SIGNATURE, msg);
-			this.ce = new CompareException(msg);
-		}
 	}
 
 
@@ -85,23 +76,17 @@ public class Comparer {
 
 	private void setFileSizes(Path sourceFile, Path compareFile) {
 		final String SIGNATURE = "setFileSizes(Path, Path)";
-		
-		try {
 			
-			// Extract payload from source multipart file
-			byte[] sourcePayloadBytes = XiMessageUtil.getPayloadBytesFromMultiPart(Util.readFile(sourceFile.toString()));
+			// Get size of source file
+			byte[] sourcePayloadBytes = Util.readFile(sourceFile.toString());
 			this.sourceFileSize = sourcePayloadBytes.length;
 			logger.writeDebug(LOCATION, SIGNATURE, "Source file size (bytes): " + this.sourceFileSize);
 			
-			// Extract payload from compare multipart file
-			byte[] comparePayloadBytes = XiMessageUtil.getPayloadBytesFromMultiPart(Util.readFile(compareFile.toString()));
+			// Get size of target file
+			byte[] comparePayloadBytes = Util.readFile(compareFile.toString());
 			this.compareFileSize = comparePayloadBytes.length;
 			logger.writeDebug(LOCATION, SIGNATURE, "Compare file size (bytes): " + this.compareFileSize);
-			
-		} catch (IOException | MessagingException e) {
-			// Not critical - just nice to know when reporting so no exception needs to be thrown
-			logger.writeError(LOCATION, SIGNATURE, "Error during determination of file sizes" + "\n" + e.getMessage());
-		}
+
 	}
 
 
