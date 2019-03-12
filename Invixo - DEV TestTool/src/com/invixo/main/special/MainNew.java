@@ -92,12 +92,7 @@ public class MainNew {
 
 
 	private static void compare() {
-		try {
-			com.invixo.main.special.OrchrestateComparison.start();	
-		} catch (GeneralException e) {
-			// TODO: Handle error
-		}
-			
+		com.invixo.main.special.OrchrestateComparison.start();
 	}
 
 

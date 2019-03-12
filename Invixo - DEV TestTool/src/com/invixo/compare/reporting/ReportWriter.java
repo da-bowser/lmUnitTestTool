@@ -127,28 +127,30 @@ public class ReportWriter {
 			Comparer comp = mst.getComp();				
 			// Create element: CompareReport | TestCase | Error
 			xmlWriter.writeStartElement(XML_PREFIX, "Error", XML_NS);
-			xmlWriter.writeCharacters(mst.getEx() == null ? "" : mst.getEx().getMessage());
+			xmlWriter.writeCharacters(comp.getCompareException() == null ? "" : comp.getCompareException().getMessage());
 			// Close element: CompareReport | TestCase | Error
 			xmlWriter.writeEndElement();
-
-			// Create element: CompareReport | TestCase | ExecutionTimeSeconds
-			xmlWriter.writeStartElement(XML_PREFIX, "ExecutionTime", XML_NS);
-			xmlWriter.writeAttribute("unit", "seconds");
-			xmlWriter.writeCharacters("" + comp.getExecutionTimeSeconds());
-			xmlWriter.writeEndElement();
-
-			// Add compare header data
-			addCompareOverview(xmlWriter, comp);	
-
-			if (comp.getCompareDifferences().size() > 0) {
-				// Create element: CompareReport | IntegratedConfiguration | CompareOverview | CompareDetails
-				xmlWriter.writeStartElement(XML_PREFIX, "CompareDetails", XML_NS);
-				// Add compare details
-				addCompareDetails(xmlWriter, comp);
-				// Close element: CompareReport | IntegratedConfiguration | CompareOverview | CompareDetails
+			
+			if (comp.getCompareException() == null) {
+				// Create element: CompareReport | TestCase | ExecutionTimeSeconds
+				xmlWriter.writeStartElement(XML_PREFIX, "ExecutionTime", XML_NS);
+				xmlWriter.writeAttribute("unit", "seconds");
+				xmlWriter.writeCharacters("" + comp.getExecutionTimeSeconds());
 				xmlWriter.writeEndElement();
 
+				// Add compare header data
+				addCompareOverview(xmlWriter, comp);	
+
+				if (comp.getCompareDifferences().size() > 0) {
+					// Create element: CompareReport | IntegratedConfiguration | CompareOverview | CompareDetails
+					xmlWriter.writeStartElement(XML_PREFIX, "CompareDetails", XML_NS);
+					// Add compare details
+					addCompareDetails(xmlWriter, comp);
+					// Close element: CompareReport | IntegratedConfiguration | CompareOverview | CompareDetails
+					xmlWriter.writeEndElement();
+				}
 			}
+			
 			
 			xmlWriter.writeEndElement();
 		}

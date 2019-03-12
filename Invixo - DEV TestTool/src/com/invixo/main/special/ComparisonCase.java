@@ -21,7 +21,8 @@ public class ComparisonCase {
 	private String targetPathOut 	= null;		// Target file path containing LAST messsages
 	private String targetIco		= null;		// Target ICO name (ref to ICO Overview ICO name). This is only for TYPE = ICO_2_ICO
 	
-	private ArrayList<MessageState> caseList = null;
+	private ArrayList<MessageState> caseList = null; // List of all file sets to compare (MessageState) for a test case (CompareCase)
+	private Exception ex = null;
 	
 	
 	public String getSourcePathIn() {
@@ -102,6 +103,14 @@ public class ComparisonCase {
 
 	public void setCaseList(ArrayList<MessageState> caseList) {
 		this.caseList = caseList;
+	}
+
+	public Exception getEx() {
+		return ex;
+	}
+
+	public void setEx(Exception ex) {
+		this.ex = ex;
 	}
 	
 }

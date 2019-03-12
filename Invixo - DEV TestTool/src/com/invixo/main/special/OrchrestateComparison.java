@@ -28,6 +28,7 @@ import com.invixo.common.util.HttpHandler;
 import com.invixo.common.util.Logger;
 import com.invixo.common.util.PropertyAccessor;
 import com.invixo.common.util.Util;
+import com.invixo.compare.CompareException;
 import com.invixo.compare.Comparer;
 import com.invixo.compare.reporting.ReportWriter;
 import com.invixo.consistency.FileStructure;
@@ -43,15 +44,13 @@ public class OrchrestateComparison {
 	private static final String SERVICE_HOST_PORT 		= GlobalParameters.SAP_PO_HTTP_HOST_AND_PORT;
 	private static final String SERVICE_PATH_INJECT 	= PropertyAccessor.getProperty("SERVICE_PATH_INJECT") + GlobalParameters.PARAM_VAL_SENDER_COMPONENT + ":" + GlobalParameters.PARAM_VAL_XI_SENDER_ADAPTER;
 	private static final String INJECT_ENDPOINT 				= SERVICE_HOST_PORT + SERVICE_PATH_INJECT;
-//	private static final String EXTRACT_ENDPOINT 				= SERVICE_HOST_PORT + SERVICE_PATH_INJECT;
-
 	
 	
-	public static void start() throws GeneralException {
+	public static void start() {
 		final String SIGNATURE = "start()";
 		
 		logger.writeDebug(LOCATION, SIGNATURE, "Start comparison orchestration...");
-
+		
 		// Get ICO Overview list
 		ArrayList<IcoOverviewInstance> icoInstancesList = loadIcoOverview(FileStructure.DIR_CONFIG, FileStructure.FILE_ICO_OVERVIEW);
 		
@@ -70,15 +69,11 @@ public class OrchrestateComparison {
 			// Get matching ICO instance
 			IcoOverviewInstance icoInstance = getIcoFromOverview(icoInstancesList, currentIcoNameRef);
 			
-			ArrayList<MessageState> stateMap = processInjection(currentEntry, icoInstance);
+			// Process current case (inject, extract, compare)
+			ComparisonCase processedCase = processCase(currentEntry, icoInstance);
 			
-			// Extract LAST messages based on inject map (only extract source LAST for ICO_2_FILE compare)
-			extractLastMessages(stateMap);
-			
-			// Compare
-			currentEntry.setCaseList(compareLastMessages(stateMap));
-			
-			processedTestCases.add(currentEntry);
+			// Add processed case for reporting purposes
+			processedTestCases.add(processedCase);
 		}
 		
 		// Create compare report
@@ -88,32 +83,55 @@ public class OrchrestateComparison {
 	}
 
 
+	private static ComparisonCase processCase(ComparisonCase currentEntry, IcoOverviewInstance icoInstance) {
+		try {
+			// Inject
+			ArrayList<MessageState> stateMap = processInjection(currentEntry, icoInstance);
+
+			// Extract LAST messages based on inject map (only extract source LAST for ICO_2_FILE compare)
+			extractLastMessages(stateMap);
+
+			// Compare
+			ArrayList<MessageState> processedCaseList = compareLastMessages(stateMap);
+			currentEntry.setCaseList(processedCaseList);
+			
+		}
+		catch (GeneralException e) {
+			// Set exception on test case and continue
+			currentEntry.setEx(e);
+		}
+		
+		// Return processed currentEntry (including compare results)
+		return currentEntry;
+	}
+
+
 	private static ArrayList<MessageState> compareLastMessages(ArrayList<MessageState> stateMap) {
 		ArrayList<MessageState> messageStateListWithCompareResult = new ArrayList<MessageState>();
-		
+
 		for(MessageState mst : stateMap) {
 			Path sourcePath = Paths.get(FileStructure.DIR_TEST_CASES + mst.getSourceFileOutputPath() + mst.getSourceFileName());
 			Path targetPath = Paths.get(FileStructure.DIR_TEST_CASES + mst.getTargetFileOutputPath() + mst.getTargetFileName());
-			
+
 			// Create new comparer
 			Comparer comp = new Comparer(sourcePath, targetPath, mst.getXpathExceptions());
-			
+
 			// Do compare
 			comp.start();
-			
-			// Set compare result om message state object
+
+			// Set compare result on message state object
 			mst.setComp(comp);
-			
+
 			// Add processed object to result list
 			messageStateListWithCompareResult.add(mst);
 		}
-		
+
 		// Return statemap with added comparers
 		return messageStateListWithCompareResult;
 	}
 
 
-	private static void extractLastMessages(ArrayList<MessageState> stateMap) {
+	private static void extractLastMessages(ArrayList<MessageState> stateMap) throws GeneralException {
 
 		try {
 			XiMessage sourceXiMsg = new XiMessage();
@@ -147,16 +165,19 @@ public class OrchrestateComparison {
 					Util.writeFileToFileSystem(FileStructure.DIR_TEST_CASES + mst.getTargetFileOutputPath() + mst.getTargetFileName(), sourceXiMsg.getXiPayload().getInputStream().readAllBytes());
 				}
 			}
-		}
-		catch (ExtractorException | HttpException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		} catch (ExtractorException | HttpException e) {
+			String msg = "Error getting messageKeys from SAP PO" + "\n" + e.getMessage();
+			throw new GeneralException(msg);
+		} catch (IOException e) {
+			String msg = "Error getting LAST message from SAP PO" + "\n" + e.getMessage();
+			throw new GeneralException(msg);
 		} catch (XiMessageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String msg = "Error setting LAST mulitipart message" + "\n" + e.getMessage();
+			throw new GeneralException(msg);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String msg = "Error extracting XiPayload from multipart message while persisting to file system" + "\n" + e.getMessage();
+			throw new GeneralException(msg);
 		}
 	}
 
