@@ -26,7 +26,6 @@ public class FileStructure {
 	public static final String DIR_DEBUG							= FILE_BASE_LOCATION + "\\Debug\\";
 	public static final String DIR_CONFIG							= FILE_BASE_LOCATION + "\\Config\\";
 	public static final String DIR_REPORTS							= FILE_BASE_LOCATION + "\\Reports\\";
-	public static final String DIR_STATE							= FILE_BASE_LOCATION + "\\State\\";
 	public static final String DIR_TEST_CASES						= FILE_BASE_LOCATION + "\\TestCases\\";
 	
 	// Files
@@ -61,7 +60,6 @@ public class FileStructure {
 	 */
 	private static void checkFolderStructure(ArrayList<IcoOverviewInstance> icoList) {
 		Util.createDirIfNotExists(FILE_BASE_LOCATION);
-		Util.createDirIfNotExists(DIR_STATE);
 		Util.createDirIfNotExists(DIR_LOGS);
 		Util.createDirIfNotExists(DIR_REPORTS);
 		Util.createDirIfNotExists(DIR_CONFIG);

@@ -12,27 +12,26 @@ import javax.xml.stream.XMLStreamWriter;
 import org.xmlunit.diff.Difference;
 
 import com.invixo.consistency.FileStructure;
+import com.invixo.main.special.ComparisonCase;
 import com.invixo.main.special.GlobalParameters;
 import com.invixo.common.MessageState;
 import com.invixo.compare.Comparer;
-import com.invixo.compare.IntegratedConfiguration;
-import com.invixo.compare.Orchestrator;
 
 public class ReportWriter {
 	private static final String	XML_PREFIX = "inv";
 	private static final String	XML_NS = "urn:invixo.com.compare.report";
 
 	private final String REPORT_FILE = FileStructure.DIR_REPORTS + "CompareReport_" + System.currentTimeMillis() + ".xml";
-	private ArrayList<MessageState>	stateList;
+	private ArrayList<ComparisonCase> testCases = null;
 
 	// ICO general
-	private int	countCompareTotal = 0;
+	private int	countTestCasesTotal = 0;
 	private int	countComparedSuccessTotal = 0;
 	private int	countComparedErrorTotal = 0;
 	private double totalExecutionTime = 0;
 	
-	public ReportWriter(ArrayList<MessageState> stateMessages) {
-		this.stateList = stateMessages;
+	public ReportWriter(ArrayList<ComparisonCase> testCases) {
+		this.testCases = testCases;
 
 		// Interpret general data
 		this.evaluateGeneralResults();
@@ -41,16 +40,19 @@ public class ReportWriter {
 
 	private void evaluateGeneralResults() {
 		// Set total number of ICO's processed
-		this.countCompareTotal = stateList.size();
+		this.countTestCasesTotal = testCases.size();
 		
-		for (MessageState mst : stateList) {
-			Comparer comp = mst.getComp();
-			this.countComparedSuccessTotal += comp.getCompareSuccess();
-			this.countComparedErrorTotal += comp.getCompareSkipped();
-			this.totalExecutionTime += comp.getExecutionTimeSeconds();
+		for (ComparisonCase testCase : testCases) {
+			Comparer comp = null;
+			for (MessageState mst : testCase.getCaseList()) {
+				comp = mst.getComp();
+				this.countComparedSuccessTotal += comp.getCompareSuccess();
+				this.countComparedErrorTotal += comp.getCompareSkipped();
+				this.totalExecutionTime += comp.getExecutionTimeSeconds();				
+			}		
 		}
 		
-		this.countCompareTotal = this.countComparedSuccessTotal + this.countComparedErrorTotal;
+		this.countTestCasesTotal = this.countComparedSuccessTotal + this.countComparedErrorTotal;
 	}
 	
 	public String create() {
@@ -72,7 +74,7 @@ public class ReportWriter {
 			xmlWriter.writeStartElement(XML_PREFIX, "Details", XML_NS);
 
 			// Add list: CompareReport | Details | IntegratedConfiguration
-			addCompareDetails(this.stateList, xmlWriter);
+			addCompareDetails(this.testCases, xmlWriter);
 
 			// Close element: CompareReport | Details
 			xmlWriter.writeEndElement();
@@ -93,29 +95,51 @@ public class ReportWriter {
 	}
 	
 	
-	private void addCompareDetails(ArrayList<MessageState> stateList,
+	private void addCompareDetails(ArrayList<ComparisonCase> testCases,
 			XMLStreamWriter xmlWriter) throws XMLStreamException {
-		// Add detail info per ICO
-		for (MessageState mst : stateList) {
-			Comparer comp = mst.getComp();
-			// Create element: CompareReport | Compare
-			xmlWriter.writeStartElement(XML_PREFIX, "Compare", XML_NS);
-
-			// Create element: CompareReport | IntegratedConfiguration | Error
-			xmlWriter.writeStartElement(XML_PREFIX, "Error", XML_NS);
-			xmlWriter.writeCharacters(mst.getEx() == null ? "" : mst.getEx().getMessage());
-			// Close element: CompareReport | IntegratedConfiguration | Error
+		// Add detail info per Test Case
+		for (ComparisonCase testCase : this.testCases) {
+			// Create element: CompareReport | TestCase
+			xmlWriter.writeStartElement(XML_PREFIX, "TestCase", XML_NS);
+			
+			xmlWriter.writeStartElement(XML_PREFIX, "SourceIco", XML_NS);
+			xmlWriter.writeCharacters(testCase.getSourceIco());
+			xmlWriter.writeEndElement();
+			xmlWriter.writeStartElement(XML_PREFIX, "TargetIco", XML_NS);
+			xmlWriter.writeCharacters(testCase.getTargetIco());
 			xmlWriter.writeEndElement();
 			
-			// Create element: CompareReport | IcoOverview | ExecutionTimeSeconds
+			xmlWriter.writeStartElement(XML_PREFIX, "Type", XML_NS);
+			xmlWriter.writeCharacters(testCase.getCompareType().name().toString());
+			xmlWriter.writeEndElement();
+			
+			addTestCaseData(xmlWriter, testCase);
+						
+			// Close element: CompareReport | TestCase
+			xmlWriter.writeEndElement();
+		}
+	}
+	
+	private void addTestCaseData(XMLStreamWriter xmlWriter, ComparisonCase testCase) throws XMLStreamException {
+		for(MessageState mst : testCase.getCaseList()) {
+			xmlWriter.writeStartElement(XML_PREFIX, "Compare", XML_NS);
+			
+			Comparer comp = mst.getComp();				
+			// Create element: CompareReport | TestCase | Error
+			xmlWriter.writeStartElement(XML_PREFIX, "Error", XML_NS);
+			xmlWriter.writeCharacters(mst.getEx() == null ? "" : mst.getEx().getMessage());
+			// Close element: CompareReport | TestCase | Error
+			xmlWriter.writeEndElement();
+
+			// Create element: CompareReport | TestCase | ExecutionTimeSeconds
 			xmlWriter.writeStartElement(XML_PREFIX, "ExecutionTime", XML_NS);
 			xmlWriter.writeAttribute("unit", "seconds");
 			xmlWriter.writeCharacters("" + comp.getExecutionTimeSeconds());
 			xmlWriter.writeEndElement();
-			
+
 			// Add compare header data
 			addCompareOverview(xmlWriter, comp);	
-			
+
 			if (comp.getCompareDifferences().size() > 0) {
 				// Create element: CompareReport | IntegratedConfiguration | CompareOverview | CompareDetails
 				xmlWriter.writeStartElement(XML_PREFIX, "CompareDetails", XML_NS);
@@ -123,14 +147,14 @@ public class ReportWriter {
 				addCompareDetails(xmlWriter, comp);
 				// Close element: CompareReport | IntegratedConfiguration | CompareOverview | CompareDetails
 				xmlWriter.writeEndElement();
-				
+
 			}
 			
-			// Close element: CompareReport | IntegratedConfiguration
 			xmlWriter.writeEndElement();
 		}
 	}
-	
+
+
 	private void addCompareOverview(XMLStreamWriter xmlWriter, Comparer comp) throws XMLStreamException {
 		// Create element: CompareReport | IntegratedConfiguration | CompareOverview | Differences
 		xmlWriter.writeStartElement(XML_PREFIX, "Differences", XML_NS);
@@ -159,7 +183,7 @@ public class ReportWriter {
 		// Create element: CompareReport | IntegratedConfiguration | CompareOverview | CompareDetails | Compare | ConfiguredExceptions
 		xmlWriter.writeStartElement(XML_PREFIX, "ConfiguredExceptions", XML_NS);
 		// Add exception data
-		//addCompareExceptionInfo(xmlWriter, comp);
+		addCompareExceptionInfo(xmlWriter, comp);
 		
 		// Close element: CompareReport | IntegratedConfiguration | CompareOverview | CompareDetails | Compare | ConfiguredExceptions
 		xmlWriter.writeEndElement();
@@ -321,9 +345,8 @@ public class ReportWriter {
 
 
 	private void addCompareExceptionInfo(XMLStreamWriter xmlWriter, Comparer comp) throws XMLStreamException {
-		
 		// Add custom exceptions to report for each ICO
-		List<String> xpathExceptions = ico.getXpathExceptions();
+		List<String> xpathExceptions = comp.getXPathExceptions();
 		for (String xPath : xpathExceptions) {
 			// Create element: | Exceptions | Configured | XPath
 			xmlWriter.writeStartElement(XML_PREFIX, "XPath", XML_NS);
@@ -335,31 +358,31 @@ public class ReportWriter {
 
 
 	private void addCompareGlobalOverview(XMLStreamWriter xmlWriter) throws XMLStreamException {
-		// Create element: CompareReport | OverView
-		xmlWriter.writeStartElement(XML_PREFIX, "OverView", XML_NS);
+		// Create element: CompareReport | TestCases
+		xmlWriter.writeStartElement(XML_PREFIX, "TestCases", XML_NS);
 
-		// Create element: CompareReport | OverView | Success
+		// Create element: CompareReport | TestCases | Success
 		xmlWriter.writeStartElement(XML_PREFIX, "Success", XML_NS);
 		xmlWriter.writeCharacters("" + this.countComparedSuccessTotal);
 		xmlWriter.writeEndElement();
 
-		// Create element: CompareReport | IcoOverview | TechnicalError
+		// Create element: CompareReport | TestCases | TechnicalError
 		xmlWriter.writeStartElement(XML_PREFIX, "Error", XML_NS);
 		xmlWriter.writeCharacters("" + this.countComparedErrorTotal);
 		xmlWriter.writeEndElement();
 
-		// Create element: CompareReport | IcoOverview | Total
+		// Create element: CompareReport | TestCases | Total
 		xmlWriter.writeStartElement(XML_PREFIX, "Total", XML_NS);
-		xmlWriter.writeCharacters("" + this.countCompareTotal);
+		xmlWriter.writeCharacters("" + this.countTestCasesTotal);
 		xmlWriter.writeEndElement();
 		
-		// Create element: CompareReport | IcoOverview | ExecutionTime
+		// Create element: CompareReport | TestCases | ExecutionTime
 		xmlWriter.writeStartElement(XML_PREFIX, "ExecutionTime", XML_NS);
 		xmlWriter.writeAttribute("unit", "seconds");
 		xmlWriter.writeCharacters("" + this.totalExecutionTime);
 		xmlWriter.writeEndElement();
 
-		// Close element: CompareReport | IcoOverview
+		// Close element: CompareReport | TestCases
 		xmlWriter.writeEndElement();
 	}
 	

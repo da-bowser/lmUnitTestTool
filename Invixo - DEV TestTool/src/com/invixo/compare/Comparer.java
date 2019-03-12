@@ -18,7 +18,7 @@ import com.invixo.common.util.XiMessageUtil;
 
 public class Comparer {
 	private static Logger logger = Logger.getInstance();
-	private static final String LOCATION = IntegratedConfiguration.class.getName();
+	private static final String LOCATION = Comparer.class.getName();
 	
 	private Path sourceFile;
 	private long sourceFileSize = 0;
@@ -32,6 +32,7 @@ public class Comparer {
 	private Map<String, String> diffsIgnoredByConfiguration = new HashMap<String, String>();
 	private ArrayList<Difference> compareDifferences = new ArrayList<Difference>();
 	private ArrayList<String> icoXPathExceptions = new ArrayList<String>();
+
 	private CompareException ce;
 	
 	public Comparer(Path sourceFile, Path compareFile, ArrayList<String> icoXPathExceptions) {
@@ -125,6 +126,11 @@ public class Comparer {
 	 *====================================================================================*/
 	public CompareException getCompareException() {
 		return this.ce;
+	}
+	
+	
+	public ArrayList<String> getXPathExceptions() {
+		return icoXPathExceptions;
 	}
 	
 	

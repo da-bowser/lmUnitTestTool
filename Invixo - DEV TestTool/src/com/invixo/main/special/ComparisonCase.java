@@ -1,5 +1,8 @@
 package com.invixo.main.special;
 
+import java.util.ArrayList;
+
+import com.invixo.common.MessageState;
 
 public class ComparisonCase {
 	
@@ -17,6 +20,8 @@ public class ComparisonCase {
 	private String targetPathIn 	= null;		// Target file path to READ FIRST compare files to be injected from
 	private String targetPathOut 	= null;		// Target file path containing LAST messsages
 	private String targetIco		= null;		// Target ICO name (ref to ICO Overview ICO name). This is only for TYPE = ICO_2_ICO
+	
+	private ArrayList<MessageState> caseList = null;
 	
 	
 	public String getSourcePathIn() {
@@ -89,6 +94,14 @@ public class ComparisonCase {
 
 	public void setMaxComparisons(int maxComparisons) {
 		this.maxComparisons = maxComparisons;
+	}
+
+	public ArrayList<MessageState> getCaseList() {
+		return caseList;
+	}
+
+	public void setCaseList(ArrayList<MessageState> caseList) {
+		this.caseList = caseList;
 	}
 	
 }

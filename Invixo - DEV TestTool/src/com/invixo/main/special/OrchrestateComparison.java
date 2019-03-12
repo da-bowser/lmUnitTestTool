@@ -62,7 +62,7 @@ public class OrchrestateComparison {
 		ArrayList<ComparisonCase> comparisonList = loadComparisonCases(FileStructure.DIR_CONFIG, FileStructure.FILE_COMPARISON_OVERVIEW);
 		
 		// Process each comparison case
-		ArrayList<MessageState> resultList = new ArrayList<MessageState>();
+		ArrayList<ComparisonCase> processedTestCases = new ArrayList<ComparisonCase>();
 		for (ComparisonCase currentEntry : comparisonList) {
 			// Get current ICO ref
 			String currentIcoNameRef = currentEntry.getSourceIco();
@@ -76,11 +76,13 @@ public class OrchrestateComparison {
 			extractLastMessages(stateMap);
 			
 			// Compare
-			resultList.addAll(compareLastMessages(stateMap));
+			currentEntry.setCaseList(compareLastMessages(stateMap));
+			
+			processedTestCases.add(currentEntry);
 		}
 		
 		// Create compare report
-		ReportWriter wr = new ReportWriter(resultList);
+		ReportWriter wr = new ReportWriter(processedTestCases);
 		wr.create();
 
 	}
