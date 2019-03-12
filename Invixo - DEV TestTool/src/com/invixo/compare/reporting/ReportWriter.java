@@ -26,8 +26,10 @@ public class ReportWriter {
 
 	// ICO general
 	private int	countTestCasesTotal = 0;
+	private int countTestCasesErrorTotal = 0; 
 	private int	countComparedSuccessTotal = 0;
 	private int	countComparedErrorTotal = 0;
+	private int countTestCasesSuccessTotal = 0;
 	private double totalExecutionTime = 0;
 	
 	public ReportWriter(ArrayList<ComparisonCase> testCases) {
@@ -43,6 +45,13 @@ public class ReportWriter {
 		this.countTestCasesTotal = testCases.size();
 		
 		for (ComparisonCase testCase : testCases) {
+			
+			if (testCase.getEx() == null) {
+				this.countTestCasesSuccessTotal++;
+			} else {
+				this.countTestCasesErrorTotal++;
+			}
+			
 			Comparer comp = null;
 			for (MessageState mst : testCase.getCaseList()) {
 				comp = mst.getComp();
@@ -51,8 +60,6 @@ public class ReportWriter {
 				this.totalExecutionTime += comp.getExecutionTimeSeconds();				
 			}		
 		}
-		
-		this.countTestCasesTotal = this.countComparedSuccessTotal + this.countComparedErrorTotal;
 	}
 	
 	public String create() {
@@ -365,12 +372,12 @@ public class ReportWriter {
 
 		// Create element: CompareReport | TestCases | Success
 		xmlWriter.writeStartElement(XML_PREFIX, "Success", XML_NS);
-		xmlWriter.writeCharacters("" + this.countComparedSuccessTotal);
+		xmlWriter.writeCharacters("" + this.countTestCasesSuccessTotal);
 		xmlWriter.writeEndElement();
 
 		// Create element: CompareReport | TestCases | TechnicalError
 		xmlWriter.writeStartElement(XML_PREFIX, "Error", XML_NS);
-		xmlWriter.writeCharacters("" + this.countComparedErrorTotal);
+		xmlWriter.writeCharacters("" + this.countTestCasesErrorTotal);
 		xmlWriter.writeEndElement();
 
 		// Create element: CompareReport | TestCases | Total
