@@ -1,6 +1,14 @@
 package com.invixo.consistency;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import com.invixo.common.IcoOverviewInstance;
 import com.invixo.common.util.Logger;
 import com.invixo.common.util.Util;
@@ -37,7 +45,13 @@ public class FileStructure {
 
 		// Ensure project folder structure is present
 		checkFolderStructure(icoList);
-				
+		
+		// Ensure that a exception file exists
+		File f = new File(FILE_CONFIG_COMPARE_EXEPTIONS);
+		if (!f.exists()) {
+			generateInitialIcoExeptionContent(icoList);
+		}		
+		
 		logger.writeDebug(LOCATION, SIGNATURE, "File structure check completed!");
 	}
 
@@ -54,7 +68,61 @@ public class FileStructure {
 		Util.createDirIfNotExists(DIR_DEBUG);
 		Util.createDirIfNotExists(DIR_TEST_CASES);
 	}
+	
+	
+	private static void generateInitialIcoExeptionContent(ArrayList<IcoOverviewInstance> icoList) {
+		final String	XML_PREFIX = "inv";
+		final String	XML_NS = "urn:invixo.com.consistency";
+		try {
+			XMLOutputFactory xMLOutputFactory = XMLOutputFactory.newInstance();
+			XMLStreamWriter xmlWriter = xMLOutputFactory.createXMLStreamWriter(new FileOutputStream(FILE_CONFIG_COMPARE_EXEPTIONS), GlobalParameters.ENCODING);
 
+			// Add xml version and encoding to output
+			xmlWriter.writeStartDocument(GlobalParameters.ENCODING, "1.0");
+
+			// Create element: Configuration
+			xmlWriter.writeStartElement(XML_PREFIX, "Configuration", XML_NS);
+			xmlWriter.writeNamespace(XML_PREFIX, XML_NS);
+			
+			// Loop ICO's found
+			for (IcoOverviewInstance ico : icoList) {
+				// Get name of current ICO
+				String icoName = ico.getName();
+				
+				// Create element: Configuration | IntegratedConfiguration
+				xmlWriter.writeStartElement(XML_PREFIX, "IntegratedConfiguration", XML_NS);
+				
+				// Create element: Configuration | IntegratedConfiguration | Name
+				xmlWriter.writeStartElement(XML_PREFIX, "Name", XML_NS);
+				xmlWriter.writeCharacters(icoName);
+				// Close element: Configuration | IntegratedConfiguration | Name
+				xmlWriter.writeEndElement();
+				
+				// Create element: Configuration | IntegratedConfiguration | Exceptions
+				xmlWriter.writeStartElement(XML_PREFIX, "Exceptions", XML_NS);
+				
+				// Create element: Configuration | IntegratedConfiguration | Exceptions | XPath
+				xmlWriter.writeStartElement(XML_PREFIX, "XPath", XML_NS);
+				// Close element: Configuration | IntegratedConfiguration | Exceptions | XPath
+				xmlWriter.writeEndElement();
+				
+				// Close element: Configuration | IntegratedConfiguration | Exceptions
+				xmlWriter.writeEndElement();
+				
+				// Close element: Configuration | IntegratedConfiguration
+				xmlWriter.writeEndElement();
+			}
+			
+			// Close element: IntegratedConfigurations
+			xmlWriter.writeEndElement();
+			
+			// Finalize writing
+			xmlWriter.flush();
+			xmlWriter.close();
+		} catch (XMLStreamException | FileNotFoundException e) {
+			throw new RuntimeException("Error generating compareExceptions.xml file! " + e);
+		}
+	}
 	
 	/**
 	 * Generate file name for a file only used at debugging time (this is web service requests and responses).

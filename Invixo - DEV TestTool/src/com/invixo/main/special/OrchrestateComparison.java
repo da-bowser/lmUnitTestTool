@@ -16,7 +16,6 @@ import java.util.UUID;
 import javax.mail.MessagingException;
 
 import org.apache.http.client.methods.HttpPost;
-import org.xmlunit.diff.Difference;
 
 import com.invixo.common.GeneralException;
 import com.invixo.common.IcoOverviewDeserializer;
@@ -83,22 +82,7 @@ public class OrchrestateComparison {
 		// Create compare report
 		ReportWriter wr = new ReportWriter(resultList);
 		wr.create();
-		
-		// Inject file A: source (any b2b specifics we need to worry about?)
-		
-		// Inject file B: target (any b2b specifics we need to worry about?)
-		
-		// Extract LAST from system, based on inject ID for file A
-		
-		// Extract LAST from system, based on inject ID for file B
-		
-		// Do we need to handle split, multimap?!?!
-		
-		// Create line in STATE file
-		// NB: handle situation where in some cases we do not want to make 2. injection since 
-		// sometimes we need to compare with a target file on file system
-		
-		// Hand over to Compare
+
 	}
 
 
@@ -106,21 +90,19 @@ public class OrchrestateComparison {
 		ArrayList<MessageState> messageStateListWithCompareResult = new ArrayList<MessageState>();
 		
 		for(MessageState mst : stateMap) {
-			Path sourcePath = Paths.get(FileStructure.DIR_TEST_CASES + mst.getSourceFileOutputPath() + mst.getSourceFileName() + ".xml");
-			Path targetPath = null;
+			Path sourcePath = Paths.get(FileStructure.DIR_TEST_CASES + mst.getSourceFileOutputPath() + mst.getSourceFileName());
+			Path targetPath = Paths.get(FileStructure.DIR_TEST_CASES + mst.getTargetFileOutputPath() + mst.getTargetFileName());
 			
-			if (mst.getTargetInjectId() == null) {
-				targetPath = Paths.get(FileStructure.DIR_TEST_CASES + mst.getTargetFileOutputPath() + mst.getTargetFileName());
-			} else {
-				targetPath = Paths.get(FileStructure.DIR_TEST_CASES + mst.getTargetFileOutputPath() + mst.getTargetFileName() + ".xml");
-			}
+			// Create new comparer
+			Comparer comp = new Comparer(sourcePath, targetPath, mst.getXpathExceptions());
 			
-			Comparer comp = new Comparer(sourcePath, targetPath, new ArrayList<String>());
-			
+			// Do compare
 			comp.start();
 			
+			// Set compare result om message state object
 			mst.setComp(comp);
 			
+			// Add processed object to result list
 			messageStateListWithCompareResult.add(mst);
 		}
 		
@@ -145,7 +127,7 @@ public class OrchrestateComparison {
 				sourceXiMsg.setMultipartBase64Bytes(multipartBase64Bytes);
 				
 				// Persist message on file system
-				Util.writeFileToFileSystem(FileStructure.DIR_TEST_CASES + mst.getSourceFileOutputPath() + mst.getSourceFileName() + ".xml", sourceXiMsg.getXiPayload().getInputStream().readAllBytes());
+				Util.writeFileToFileSystem(FileStructure.DIR_TEST_CASES + mst.getSourceFileOutputPath() + mst.getSourceFileName(), sourceXiMsg.getXiPayload().getInputStream().readAllBytes());
 								
 				
 				if (mst.getTargetInjectId() == null) {
@@ -160,7 +142,7 @@ public class OrchrestateComparison {
 					targetXiMsg.setMultipartBase64Bytes(multipartBase64Bytes);
 					
 					// Persist message on file system
-					Util.writeFileToFileSystem(FileStructure.DIR_TEST_CASES + mst.getTargetFileOutputPath() + mst.getTargetFileName() + ".xml", sourceXiMsg.getXiPayload().getInputStream().readAllBytes());
+					Util.writeFileToFileSystem(FileStructure.DIR_TEST_CASES + mst.getTargetFileOutputPath() + mst.getTargetFileName(), sourceXiMsg.getXiPayload().getInputStream().readAllBytes());
 				}
 			}
 		}
