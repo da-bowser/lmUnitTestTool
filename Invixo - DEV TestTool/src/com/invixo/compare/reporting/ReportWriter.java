@@ -145,7 +145,8 @@ public class ReportWriter {
 	
 	private void addTestCaseData(XMLStreamWriter xmlWriter, ComparisonCase testCase) throws XMLStreamException {
 		for(MessageState mst : testCase.getCaseList()) {
-			xmlWriter.writeStartElement(XML_PREFIX, "Compare", XML_NS);
+			// Create element: | Result
+			xmlWriter.writeStartElement(XML_PREFIX, "Result", XML_NS);
 			
 			Comparer comp = mst.getComp();				
 			// Create element: CompareReport | TestCase | Error
@@ -165,15 +166,14 @@ public class ReportWriter {
 
 				if (comp.getCompareDifferences().size() > 0) {
 					// Create element: CompareReport | TestCase | Compare | Results
-					xmlWriter.writeStartElement(XML_PREFIX, "Results", XML_NS);
+					xmlWriter.writeStartElement(XML_PREFIX, "Compare", XML_NS);
 					// Add compare details
 					addCompareDetails(xmlWriter, comp);
 					xmlWriter.writeEndElement(); // Close element: CompareReport | TestCase | Compare | CompareDetails
 				}
 			}
 			
-			
-			xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement(); // Close element: | Result
 		}
 	}
 
@@ -213,35 +213,28 @@ public class ReportWriter {
 	}
 	
 	private void addCompareDetails(XMLStreamWriter xmlWriter, Comparer comp) throws XMLStreamException {
-		
-			// Create element: | Results | Result | 
-			xmlWriter.writeStartElement(XML_PREFIX, "Result", XML_NS);
 			
-			// Create element: | Results | Result | Files
+			// Create element: | Files
 			xmlWriter.writeStartElement(XML_PREFIX, "Files", XML_NS);
 			
-			// Create element: | Results | Result | Files | Source
+			// Create element: | Files | Source
 			xmlWriter.writeStartElement(XML_PREFIX, "Source", XML_NS);
 			xmlWriter.writeAttribute("file", extractInfoFromPath(comp.getSourceFile(), "FILE"));
 			xmlWriter.writeAttribute("bytes", "" + comp.getSourceFileSize());
 			xmlWriter.writeCharacters(comp.getSourceFile().toAbsolutePath().toString().replace(comp.getSourceFile().getFileName().toString(), ""));
 			xmlWriter.writeEndElement();
 			
-			// Create element: | Results | Result | Files | Target
+			// Create element: | Files | Target
 			xmlWriter.writeStartElement(XML_PREFIX, "Target", XML_NS);
 			xmlWriter.writeAttribute("file", extractInfoFromPath(comp.getCompareFile(), "FILE"));
 			xmlWriter.writeAttribute("bytes", "" + comp.getCompareFileSize());
 			xmlWriter.writeCharacters(extractInfoFromPath(comp.getCompareFile(), "DIRECTORY"));
 			xmlWriter.writeEndElement();
 			
-			xmlWriter.writeEndElement(); // Close element: Create element: | Results | Result | Files
+			xmlWriter.writeEndElement(); // Close element: | Files
 			
-			// Create element: | Results | Result
-			xmlWriter.writeStartElement(XML_PREFIX, "Result", XML_NS);
+			// Add compare result data
 			addCompareResult(xmlWriter, comp);			
-			xmlWriter.writeEndElement();
-			
-			xmlWriter.writeEndElement(); // Close element: | Results | Result | 
 	}
 	
 	private void addCompareResult(XMLStreamWriter xmlWriter, Comparer comp) throws XMLStreamException {
