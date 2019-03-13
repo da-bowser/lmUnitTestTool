@@ -28,7 +28,6 @@ import com.invixo.common.util.HttpHandler;
 import com.invixo.common.util.Logger;
 import com.invixo.common.util.PropertyAccessor;
 import com.invixo.common.util.Util;
-import com.invixo.compare.CompareException;
 import com.invixo.compare.Comparer;
 import com.invixo.compare.reporting.ReportWriter;
 import com.invixo.consistency.FileStructure;
@@ -78,7 +77,9 @@ public class OrchrestateComparison {
 		
 		// Create compare report
 		ReportWriter wr = new ReportWriter(processedTestCases);
-		wr.create();
+		String reportFile = wr.create();
+		
+		logger.writeInfo(LOCATION, SIGNATURE, "Compare report is stored here: " + reportFile);
 
 	}
 
