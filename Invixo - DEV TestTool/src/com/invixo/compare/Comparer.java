@@ -45,6 +45,7 @@ public class Comparer {
 	 */
 	public void start() {
 		final String SIGNATURE = "start()";
+		logger.writeDebug(LOCATION, SIGNATURE, "Compare start");
 		
 		try {
 			// Set file sizes for later reporting purposes
@@ -65,7 +66,9 @@ public class Comparer {
 			// Increment compare success for reporting purposes
 			this.compareSuccessCount++;
 		
+			logger.writeDebug(LOCATION, SIGNATURE, "Compare done");
 		} catch (CompareException e) {
+			logger.writeError(LOCATION, SIGNATURE, e.getMessage());
 			this.compareSkippedCount++;
 			this.ce = e;
 		}

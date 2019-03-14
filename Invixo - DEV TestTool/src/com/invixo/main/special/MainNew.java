@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.invixo.common.GeneralException;
 import com.invixo.common.util.Logger;
 import com.invixo.common.util.PropertyAccessor;
 import com.invixo.common.util.Util;

@@ -38,11 +38,11 @@ import com.invixo.injection.RequestGeneratorUtil;
 
 public class OrchrestateComparison {
 
-	private static Logger logger = Logger.getInstance();
-	private static final String LOCATION = OrchrestateComparison.class.getName();
+	private static Logger logger 						= Logger.getInstance();
+	private static final String LOCATION 				= OrchrestateComparison.class.getName();
 	private static final String SERVICE_HOST_PORT 		= GlobalParameters.SAP_PO_HTTP_HOST_AND_PORT;
 	private static final String SERVICE_PATH_INJECT 	= PropertyAccessor.getProperty("SERVICE_PATH_INJECT") + GlobalParameters.PARAM_VAL_SENDER_COMPONENT + ":" + GlobalParameters.PARAM_VAL_XI_SENDER_ADAPTER;
-	private static final String INJECT_ENDPOINT 				= SERVICE_HOST_PORT + SERVICE_PATH_INJECT;
+	private static final String INJECT_ENDPOINT 		= SERVICE_HOST_PORT + SERVICE_PATH_INJECT;
 	
 	
 	public static void start() {
@@ -238,7 +238,7 @@ public class OrchrestateComparison {
 					// Inject target file
 					injectPayload(icoInstance, queueId, targetId, targetPath);
 				} else {
-					// Correlate source inject id with target file name instead of messageId
+					// No inject - just correlate source inject id with target file name instead of messageId
 					targetId = targetPath.getFileName().toString();
 				}
 				
@@ -250,7 +250,7 @@ public class OrchrestateComparison {
 			}
 			
 		} else {
-			String msg = "File mismatch for ICO 2 ICO scenario. Sources: " + sourceInjectPaths.size() + " targets: " + targetInjectPaths.size();
+			String msg = "File mismatch in test case. Sources: " + sourceInjectPaths.size() + " targets: " + targetInjectPaths.size();
 			throw new GeneralException(msg);
 		}
 		
