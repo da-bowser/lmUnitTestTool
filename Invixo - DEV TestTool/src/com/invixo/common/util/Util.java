@@ -1,6 +1,8 @@
 package com.invixo.common.util;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -107,6 +109,23 @@ public class Util {
 	public static String extractMessageIdFromKey(String key) {
 		String messageId = key.substring(0, key.indexOf("\\"));
 		return messageId;
+	}
+	
+	
+
+	public static void deleteAllFilesInFolder(String rootDirectory) {
+		try {
+			Path dir = new File(rootDirectory).toPath();
+			
+			DirectoryStream<Path> stream = Files.newDirectoryStream(dir);
+			for (Path path : stream) {
+			    File f = new File(path.toString());
+			    f.delete();
+			}
+		} catch (IOException e) {
+			String msg = "*deleteAllFilesInFolder* Could not delete files in folder: " + rootDirectory + "\n" + e.getMessage(); 
+			throw new RuntimeException(msg);
+		}
 	}
 	
 }

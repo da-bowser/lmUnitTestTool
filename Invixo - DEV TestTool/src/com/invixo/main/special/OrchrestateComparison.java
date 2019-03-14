@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import javax.mail.MessagingException;
 
 import org.apache.http.client.methods.HttpPost;
@@ -86,6 +85,9 @@ public class OrchrestateComparison {
 
 	private static ComparisonCase processCase(ComparisonCase currentEntry, IcoOverviewInstance icoInstance) {
 		try {
+			// Delete old data for test case before a new run
+			deleteOldTestCaseRunData(currentEntry);
+			
 			// Inject
 			ArrayList<MessageState> stateMap = processInjection(currentEntry, icoInstance);
 
@@ -104,6 +106,25 @@ public class OrchrestateComparison {
 		
 		// Return processed currentEntry (including compare results)
 		return currentEntry;
+	}
+
+
+	private static void deleteOldTestCaseRunData(ComparisonCase currentEntry) {
+		final String SIGNATURE = "deleteOldTestCaseRunData(ComparisonCase)";
+		
+		String sourceOutputDir = FileStructure.DIR_TEST_CASES + currentEntry.getSourcePathOut();
+		String targetOutputDir = FileStructure.DIR_TEST_CASES + currentEntry.getTargetPathOut();
+		
+		// Delete source output files
+		logger.writeDebug(LOCATION, SIGNATURE, "Housekeeping: Deleting old test case data in folder: " + sourceOutputDir);
+		Util.deleteAllFilesInFolder(sourceOutputDir);
+		
+		// For ICO 2 ICO scenario, also delete target output files
+		if (currentEntry.getCompareType().equals(ComparisonCase.TYPE.ICO_2_ICO)) {
+			logger.writeDebug(LOCATION, SIGNATURE, "Housekeeping: Deleting old test case data in folder: " + targetOutputDir);
+			Util.deleteAllFilesInFolder(targetOutputDir);	
+		}
+		
 	}
 
 
