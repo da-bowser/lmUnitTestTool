@@ -66,8 +66,8 @@ public class WebServiceUtil {
 	 * @throws HttpException
 	 * @throws ExtractorException
 	 */
-	public static String lookupMessageKey(String messageId, String icoName) throws HttpException, ExtractorException {
-		final String SIGNATURE = "lookupMessageKey(String, String)";
+	public static MessageInfo lookupMessageInfo(String messageId, String icoName) throws HttpException, ExtractorException {
+		final String SIGNATURE = "lookupMessageInfo(String, String)";
 		
 		// Create "GetMessagesByIDs" request
 		byte[] getMessageByIdsRequestBytes = createRequestGetMessagesByIDs(messageId);
@@ -84,8 +84,8 @@ public class WebServiceUtil {
 		logger.writeDebug(LOCATION, SIGNATURE, "Web Service (GetMessagesByIDs) called");
 		
 		// Extract messageKey from response
-		String messageKey = extractMessageKeyFromResponse(getMessageByIdsResponseBytes);
-		return messageKey;
+		MessageInfo msgInfo = extractMessageInfoFromResponse(getMessageByIdsResponseBytes);
+		return msgInfo;
 	}
 
 	
@@ -288,15 +288,15 @@ public class WebServiceUtil {
 	
 
 	/**
-	 * Extract messageKey from GetMessagesByIDs response.
+	 * Extract message info from GetMessagesByIDs response.
 	 * @param responseBytes
 	 * @return
 	 * @throws ExtractorException
 	 */
-	static String extractMessageKeyFromResponse(byte[] responseBytes) throws ExtractorException {
-		final String SIGNATURE = "extractMessageKeyFromResponse(byte[])";
+	static MessageInfo extractMessageInfoFromResponse(byte[] responseBytes) throws ExtractorException {
+		final String SIGNATURE = "extractMessageInfoFromResponse(byte[])";
 		try {
-	        String messageKey = "";
+	        MessageInfo msgInfo = new MessageInfo();
 	        
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLEventReader eventReader = factory.createXMLEventReader(new ByteArrayInputStream(responseBytes));
@@ -309,15 +309,17 @@ public class WebServiceUtil {
 					String currentElementName = event.asStartElement().getName().getLocalPart();
 
 					if ("messageKey".equals(currentElementName)) {
-						messageKey = eventReader.peek().asCharacters().getData();
+						msgInfo.setMessageKey(eventReader.peek().asCharacters().getData());
+					} else if ("status".equals(currentElementName)) {
+						msgInfo.setStatus(eventReader.peek().asCharacters().getData());
 					}
 					break;
 				}
 			}
 			
-			return messageKey;
+			return msgInfo;
 		} catch (XMLStreamException e) {
-			String msg = "Error extracting messageKey from 'GetMessagesByIDs' Web Service response.\n" + e.getMessage();
+			String msg = "Error extracting message info from 'GetMessagesByIDs' Web Service response.\n" + e.getMessage();
 			logger.writeError(LOCATION, SIGNATURE, msg);
 			throw new ExtractorException(msg);
 		}

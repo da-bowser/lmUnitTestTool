@@ -33,6 +33,8 @@ import com.invixo.compare.Comparer;
 import com.invixo.compare.reporting.ReportWriter;
 import com.invixo.consistency.FileStructure;
 import com.invixo.extraction.ExtractorException;
+import com.invixo.extraction.InvalidXiMessageState;
+import com.invixo.extraction.MessageInfo;
 import com.invixo.extraction.WebServiceUtil;
 import com.invixo.injection.InjectionPayloadException;
 import com.invixo.injection.RequestGeneratorUtil;
@@ -167,31 +169,43 @@ public class OrchrestateComparison {
 
 
 	private static void extractLastMessages(ArrayList<MessageState> stateMap) throws GeneralException {
-
 		try {
 			XiMessage sourceXiMsg = new XiMessage();
 			XiMessage targetXiMsg = new XiMessage();
-			for(MessageState mst : stateMap) {
+			
+			for (MessageState mst : stateMap) {
 				// Get message key for source inject id
-				String sourceMessageKey = WebServiceUtil.lookupMessageKey(mst.getSourceInjectId(), mst.getSourceIcoName());
-				sourceXiMsg.setSapMessageKey(sourceMessageKey);
+				MessageInfo sourceMsgInfo = WebServiceUtil.lookupMessageInfo(mst.getSourceInjectId(), mst.getSourceIcoName());
+				
+				// Terminate run if message state is not acceptable
+				terminateOnInvalidStatus("SOURCE", sourceMsgInfo.getStatus());
+				
+				// Set source message key
+				sourceXiMsg.setSapMessageKey(sourceMsgInfo.getMessageKey());
+				
 				// Get LAST message for source injection id
-				String multipartBase64Bytes = WebServiceUtil.lookupSapXiMessage(sourceMessageKey, -1);
+				String multipartBase64Bytes = WebServiceUtil.lookupSapXiMessage(sourceMsgInfo.getMessageKey(), -1);
 				
 				// Set multipart of source message
 				sourceXiMsg.setMultipartBase64Bytes(multipartBase64Bytes);
 				
 				// Persist message on file system
-				Util.writeFileToFileSystem(FileStructure.DIR_TEST_CASES + mst.getSourceFileOutputPath() + mst.getSourceFileName(), sourceXiMsg.getXiPayload().getInputStream().readAllBytes());
-								
+				Util.writeFileToFileSystem(FileStructure.DIR_TEST_CASES + mst.getSourceFileOutputPath() + mst.getSourceFileName(), sourceXiMsg.getXiPayload().getInputStream().readAllBytes());				
 				
 				if (mst.getTargetInjectId() == null) {
 					// ICO 2 FILE scenario, nothing to extract output files on target side is already ready for compare
 				} else {
-					String targetMessageKey = WebServiceUtil.lookupMessageKey(mst.getSourceInjectId(), mst.getSourceIcoName());
-					targetXiMsg.setSapMessageKey(targetMessageKey);
+					// Get message key for target inject id
+					MessageInfo targetMsgInfo = WebServiceUtil.lookupMessageInfo(mst.getSourceInjectId(), mst.getSourceIcoName());
+					
+					// Terminate run if message state is not acceptable
+					terminateOnInvalidStatus("TARGET", sourceMsgInfo.getStatus());
+					
+					// Set target message key
+					targetXiMsg.setSapMessageKey(targetMsgInfo.getMessageKey());
+					
 					// Get LAST message for target inject id
-					multipartBase64Bytes = WebServiceUtil.lookupSapXiMessage(targetMessageKey, -1); 
+					multipartBase64Bytes = WebServiceUtil.lookupSapXiMessage(targetMsgInfo.getMessageKey(), -1); 
 					
 					// Set multipart of target message
 					targetXiMsg.setMultipartBase64Bytes(multipartBase64Bytes);
@@ -199,8 +213,7 @@ public class OrchrestateComparison {
 					// Persist message on file system
 					Util.writeFileToFileSystem(FileStructure.DIR_TEST_CASES + mst.getTargetFileOutputPath() + mst.getTargetFileName(), sourceXiMsg.getXiPayload().getInputStream().readAllBytes());
 				}
-			}
-		
+			}		
 		} catch (ExtractorException | HttpException e) {
 			String msg = "Error getting messageKeys from SAP PO" + "\n" + e.getMessage();
 			throw new GeneralException(msg);
@@ -213,6 +226,17 @@ public class OrchrestateComparison {
 		} catch (MessagingException e) {
 			String msg = "Error extracting XiPayload from multipart message while persisting to file system" + "\n" + e.getMessage();
 			throw new GeneralException(msg);
+		} catch (InvalidXiMessageState e) {
+			throw new GeneralException(e.getMessage());
+		} 
+	}
+
+
+	private static void terminateOnInvalidStatus(String messageOrigin, String status) throws InvalidXiMessageState {
+		if (!status.equals("success")) {
+			String msg = "Invalid message status while extracting (LAST) message for \"" + messageOrigin + "\" with status: " + status + "."
+						+ "\nIncrease \"WaitBeforeExtract\" in config file \"RttComparisonList.xml\" for the failed ICO and try again.";
+			throw new InvalidXiMessageState(msg);
 		}
 	}
 
