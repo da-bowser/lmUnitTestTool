@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import javax.mail.MessagingException;
 
 import org.apache.http.client.methods.HttpPost;
@@ -84,13 +86,18 @@ public class OrchrestateComparison {
 
 
 	private static ComparisonCase processCase(ComparisonCase currentEntry, IcoOverviewInstance icoInstance) {
+		final String SIGNATURE = "processCase(ComparisonCase, IcoOverviewInstance)";
 		try {
 			// Delete old data for test case before a new run
 			deleteOldTestCaseRunData(currentEntry);
 			
 			// Inject
 			ArrayList<MessageState> stateMap = processInjection(currentEntry, icoInstance);
-
+			
+			// Wait X seconds before extracting LAST messages for newly injected messageId's
+			logger.writeInfo(LOCATION, SIGNATURE, "Wait step configured before extract (LAST): " + currentEntry.getWaitBeforeExtract() + " (seconds)");
+			TimeUnit.SECONDS.sleep(currentEntry.getWaitBeforeExtract());
+			
 			// Extract LAST messages based on inject map (only extract source LAST for ICO_2_FILE compare)
 			extractLastMessages(stateMap);
 
@@ -102,6 +109,12 @@ public class OrchrestateComparison {
 		catch (GeneralException e) {
 			// Set exception on test case and continue
 			currentEntry.setEx(e);
+		} catch (InterruptedException e) {
+			String msg = "Wait timer interupted, this could cause FIRST messages to be extracted and not LAST as message processing in PO is not done.\n"
+						+ "AM step will therefore not be created yet.";
+			
+			// Set exception on test case and continue
+			currentEntry.setEx(new GeneralException(msg));
 		}
 		
 		// Return processed currentEntry (including compare results)

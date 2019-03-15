@@ -74,6 +74,10 @@ public class ComparisonXmlDeserializer {
 					// Active
 			    	} else if ("Active".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
 			    		isActive = Boolean.parseBoolean(eventReader.peek().asCharacters().getData());
+			    	
+			    	// Wait timer from inject is done to extract (LAST) is performed
+			    	} else if ("WaitBeforeExtract".equals(currentStartElementName) && eventReader.peek().isCharacters()) {
+			    		currentExtract.setWaitBeforeExtract(Integer.parseInt(eventReader.peek().asCharacters().getData()));
 
 					// Max messages
 					} else if ("MaxMessages".equals(currentStartElementName) && eventReader.peek().isCharacters()) {

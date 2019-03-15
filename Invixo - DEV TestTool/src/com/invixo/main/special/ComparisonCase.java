@@ -10,6 +10,7 @@ public class ComparisonCase {
 		
 	private String baseFilePath 	= null;		// Base file path
 	private int maxComparisons		= 0;		// Maximum number of source files to process
+	private int waitBeforeExtract 	= 0;		// Wait time in seconds from inject step to extract (LAST)
 	
 	private String sourcePathIn 	= null;		// Source file path to READ FIRST files from
 	private String sourcePathOut 	= null;		// Source file path to WRITE extracted LAST messages to for later comparison
@@ -111,6 +112,14 @@ public class ComparisonCase {
 
 	public void setEx(Exception ex) {
 		this.ex = ex;
+	}
+
+	public int getWaitBeforeExtract() {
+		return waitBeforeExtract;
+	}
+
+	public void setWaitBeforeExtract(int waitBeforeExtract) {
+		this.waitBeforeExtract = waitBeforeExtract;
 	}
 	
 }
