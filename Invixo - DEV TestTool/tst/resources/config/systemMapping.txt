@@ -1,2 +1,0 @@
-RTT_Sender|RTT_Sender|RTT_Sender
-RTT_Receiver|RTT_Receiver|RTT_Receiver
